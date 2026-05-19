@@ -11,26 +11,32 @@
   "categories": ["education", "productivity", "utilities"],
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%232563eb'/><text y='140' x='96' text-anchor='middle' font-size='110'>🎒</text></svg>",
+      "src": "./icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%232563eb'/><text y='380' x='256' text-anchor='middle' font-size='300'>🎒</text></svg>",
+      "src": "./icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
     }
   ],
   "shortcuts": [
     {
       "name": "Equipamentos",
-      "url": "./index.html#equipment",
+      "url": "./index.html",
       "description": "Ver equipamentos"
     },
     {
       "name": "Reservas",
-      "url": "./index.html#reservations",
+      "url": "./index.html",
       "description": "Ver reservas"
     }
   ],
