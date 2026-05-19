@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#2563eb"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="EscolaStock"/>
+<title>EscolaStock</title>
+<link rel="manifest" href="./manifest.json" id="pwa-manifest"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;overflow:hidden;background:#f1f5f9}
+:root{
+  --blue:#2563eb;--blue-l:#eff6ff;--blue-m:#bfdbfe;--blue-d:#1d4ed8;
+  --green:#059669;--green-l:#ecfdf5;--green-m:#a7f3d0;
+  --amber:#d97706;--amber-l:#fffbeb;
+  --red:#dc2626;--red-l:#fef2f2;--red-m:#fecaca;
+  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+  --border:#e2e8f0;--card:#fff;--bg:#f1f5f9;
+  --sidebar:#fff;--input-bg:#f8fafc;
+  --sh:0 1px 3px rgba(0,0,0,.08);--r:12px;
+}
+.dark{
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
+  --border:#1e293b;--card:#0f172a;--bg:#020617;
+  --sidebar:#0f172a;--input-bg:#1e293b;
+  --blue-l:#1e3a5f;--green-l:#064e3b;--amber-l:#431407;--red-l:#3b0f0f;
+  --blue-m:#1e3a8a;--green-m:#065f46;--red-m:#7f1d1d;--sh:0 1px 3px rgba(0,0,0,.3);
+}
+
+/* ══════════════════════════════
+   SPLASH
+══════════════════════════════ */
+#splash{position:fixed;inset:0;background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 50%,#3b82f6 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s}
+#splash.hide{opacity:0;pointer-events:none}
+.sp-logo{width:100px;height:100px;background:rgba(255,255,255,.2);border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:54px;margin-bottom:22px;animation:pop .6s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 32px rgba(0,0,0,.2)}
+@keyframes pop{from{transform:scale(0) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.sp-name{font-size:32px;font-weight:800;color:#fff;letter-spacing:-.5px;animation:fadeUp .6s .2s both}
+.sp-sub{font-size:14px;color:rgba(255,255,255,.75);margin-top:6px;animation:fadeUp .6s .35s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.sp-loader{margin-top:36px;display:flex;gap:8px;animation:fadeUp .6s .5s both}
+.sp-dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.5);animation:pulse 1.3s infinite}
+.sp-dot:nth-child(2){animation-delay:.2s}.sp-dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+
+/* ══════════════════════════════
+   AUTH SCREENS
+══════════════════════════════ */
+#auth-wrap{position:fixed;inset:0;background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;overflow-y:auto}
+#auth-wrap[hidden]{display:none}
+.auth-card{background:#fff;border-radius:20px;width:100%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,.3);overflow:hidden;animation:cardIn .35s ease}
+@keyframes cardIn{from{opacity:0;transform:scale(.95) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.auth-screen{display:none}
+.auth-screen.active{display:block}
+/* Auth header */
+.ah{padding:28px 28px 0;text-align:center}
+.ah-logo{width:56px;height:56px;background:var(--blue-l);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px}
+.ah-title{font-size:20px;font-weight:800;color:#0f172a;letter-spacing:-.3px}
+.ah-sub{font-size:13px;color:#64748b;margin-top:6px;line-height:1.5}
+/* Auth body */
+.ab{padding:24px 28px 28px}
+/* Auth form field */
+.af{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.af label{font-size:12px;font-weight:600;color:#475569}
+.af-in{position:relative}
+.af-in input{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;color:#0f172a;background:#f8fafc;outline:none;transition:all .2s;font-family:inherit}
+.af-in input:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.af-in input.err{border-color:var(--red);background:#fff}
+.af-in .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;display:flex;align-items:center;padding:2px}
+.af-in .eye:hover{color:#475569}
+.af-in .eye i{font-size:18px}
+.err-msg{font-size:11px;color:var(--red);margin-top:3px;display:none}
+.err-msg.show{display:block}
+/* Divider */
+.divider{display:flex;align-items:center;gap:10px;margin:18px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#e2e8f0}
+.divider span{font-size:12px;color:#94a3b8;white-space:nowrap}
+/* Social buttons */
+.social-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;font-size:14px;font-weight:500;color:#0f172a;transition:all .15s;margin-bottom:10px}
+.social-btn:hover{background:#f8fafc;border-color:#cbd5e1}
+.social-btn:last-child{margin-bottom:0}
+.social-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+/* Main auth button */
+.auth-btn{width:100%;padding:12px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+.auth-btn:hover{background:var(--blue-d);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.4)}
+.auth-btn:active{transform:translateY(0)}
+.auth-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+/* Links */
+.auth-link{background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer;font-family:inherit;padding:0;text-decoration:none}
+.auth-link:hover{text-decoration:underline}
+.auth-row{display:flex;align-items:center;justify-content:space-between;margin-top:16px;font-size:13px;color:#64748b;flex-wrap:wrap;gap:8px}
+/* Back button */
+.back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:#64748b;font-size:13px;cursor:pointer;padding:12px 28px 0;font-family:inherit}
+.back-btn:hover{color:#0f172a}
+.back-btn i{font-size:16px}
+/* Step indicator */
+.steps{display:flex;align-items:center;justify-content:center;gap:8px;padding:16px 28px 0}
+.step{width:28px;height:4px;border-radius:2px;background:#e2e8f0;transition:background .3s}
+.step.active{background:var(--blue)}
+.step.done{background:var(--green)}
+/* OTP inputs */
+.otp-wrap{display:flex;gap:8px;justify-content:center;margin:8px 0}
+.otp-in{width:48px;height:52px;border:1.5px solid #e2e8f0;border-radius:10px;text-align:center;font-size:22px;font-weight:700;color:#0f172a;background:#f8fafc;outline:none;transition:all .2s;font-family:inherit}
+.otp-in:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+/* Success state */
+.success-box{text-align:center;padding:16px 0}
+.success-icon{width:72px;height:72px;background:#ecfdf5;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.success-icon i{font-size:36px;color:var(--green)}
+/* Accounts list */
+.acct-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:1.5px solid #e2e8f0;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.acct-item:hover{border-color:var(--blue);background:var(--blue-l)}
+.acct-av{width:38px;height:38px;border-radius:50%;background:var(--blue-l);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--blue);flex-shrink:0}
+/* Terms */
+.terms-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;margin-top:4px}
+.terms-row input[type=checkbox]{width:17px;height:17px;margin-top:1px;cursor:pointer;accent-color:var(--blue);flex-shrink:0}
+.terms-row label{font-size:12px;color:#64748b;line-height:1.5;cursor:pointer}
+/* Toast auth */
+.auth-toast{padding:10px 14px;border-radius:9px;font-size:13px;font-weight:500;margin-bottom:14px;display:none;align-items:center;gap:8px}
+.auth-toast.show{display:flex}
+.auth-toast.err{background:#fef2f2;color:var(--red);border:1px solid #fecaca}
+.auth-toast.ok{background:#ecfdf5;color:var(--green);border:1px solid #a7f3d0}
+/* Google colors */
+.g-icon{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='%23EA4335' d='M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z'/%3E%3Cpath fill='%234285F4' d='M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z'/%3E%3Cpath fill='%23FBBC05' d='M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z'/%3E%3Cpath fill='%2334A853' d='M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z'/%3E%3C/svg%3E") center/100% no-repeat;display:inline-block;width:20px;height:20px}
+.ms-icon{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21 21'%3E%3Crect x='1' y='1' width='9' height='9' fill='%23F25022'/%3E%3Crect x='11' y='1' width='9' height='9' fill='%237FBA00'/%3E%3Crect x='1' y='11' width='9' height='9' fill='%2300A4EF'/%3E%3Crect x='11' y='11' width='9' height='9' fill='%23FFB900'/%3E%3C/svg%3E") center/100% no-repeat;display:inline-block;width:20px;height:20px}
+
+/* ══════════════════════════════
+   APP LAYOUT
+══════════════════════════════ */
+#app-wrap{position:fixed;inset:0;display:flex;background:var(--bg);overflow:hidden}
+.mn{width:100%}
+#app-wrap[hidden]{display:none}
+.sb{width:240px;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:50;transition:transform .25s;position:fixed;top:0;left:0;bottom:0;transform:translateX(-100%)}
+.sb.open{transform:translateX(0)}
+.sb-lg{padding:18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px}
+.sb-li{width:40px;height:40px;background:var(--blue);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-li i{color:#fff;font-size:21px}
+.sb-ln{font-size:15px;font-weight:700;color:var(--text)}
+.sb-ls{font-size:11px;color:var(--text3)}
+.sb-u{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.uav{width:36px;height:36px;border-radius:50%;background:var(--blue-l);border:2px solid var(--blue-m);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--blue);flex-shrink:0}
+.sb-un{font-size:13px;font-weight:600;color:var(--text)}
+.sb-ue{font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:155px}
+.sb-n{flex:1;padding:10px 8px;overflow-y:auto}
+.sb-sec{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:10px 10px 4px}
+.nvi{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:2px;transition:all .15s;user-select:none;position:relative}
+.nvi:hover{background:var(--bg);color:var(--text)}
+.nvi.active{background:var(--blue);color:#fff}
+.nvi i{font-size:18px;flex-shrink:0}
+.nbd{position:absolute;right:10px;background:var(--red);color:#fff;width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center}
+.nbd.on{display:flex}
+.sb-lo{padding:10px 8px;border-top:1px solid var(--border)}
+.sb-lb{width:100%;display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:500;color:var(--red);background:none;border:none}
+.sb-lb:hover{background:var(--red-l)}
+.mn{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.tb{padding:11px 16px;background:var(--card);border-bottom:1px solid var(--border);align-items:center;justify-content:space-between;flex-shrink:0;display:flex}
+.hb{background:none;border:none;cursor:pointer;color:var(--text2);display:flex;align-items:center;padding:4px}
+.hb i{font-size:22px}
+.tb-t{font-size:14px;font-weight:700;color:var(--text)}
+.ct{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px;-webkit-overflow-scrolling:touch}
+.pg{display:none}.pg.active{display:block;animation:fi .18s ease}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+/* Page header */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px}
+.ph h1{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.4px}
+.ph p{font-size:13px;color:var(--text3);margin-top:3px}
+.pha{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn i{font-size:16px;flex-shrink:0}
+.bp{background:var(--blue);color:#fff}.bp:hover{opacity:.88}
+.bs{background:var(--card);color:var(--text2);border:1px solid var(--border)}.bs:hover{background:var(--bg)}
+.bd{background:var(--red-l);color:var(--red);border:1px solid var(--red-m)}.bd:hover{background:var(--red-m)}
+.bgr2{background:var(--green-l);color:var(--green);border:1px solid var(--green-m)}.bgr2:hover{background:var(--green-m)}
+.bgh{background:none;color:var(--text2);border:none;padding:6px 10px}.bgh:hover{background:var(--bg);color:var(--text)}
+.bsm{padding:6px 11px;font-size:12px}
+.bi{padding:7px;border-radius:8px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center}
+.bi i{font-size:16px}
+.bi:hover{background:var(--bg)}
+.bi.ed:hover{background:var(--blue-l);color:var(--blue);border-color:var(--blue-m)}
+.bi.dl:hover{background:var(--red-l);color:var(--red);border-color:var(--red-m)}
+/* Cards */
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--sh);overflow:hidden}
+.ch{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.ct2{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px}
+.ct2 i{font-size:17px;color:var(--blue)}
+.cb{padding:16px 18px}
+/* Stats */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;margin-bottom:22px}
+.sc{background:var(--card);border-radius:var(--r);border:1px solid var(--border);padding:16px;box-shadow:var(--sh);cursor:pointer;transition:box-shadow .2s}
+.sc:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.sic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:11px}
+.sic i{font-size:21px}
+.ib{background:var(--blue-l);color:var(--blue)}.ig{background:var(--green-l);color:var(--green)}.ia{background:var(--amber-l);color:var(--amber)}.ir{background:var(--red-l);color:var(--red)}
+.sc-l{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em}
+.sc-v{font-size:28px;font-weight:800;color:var(--text);line-height:1;margin:4px 0 2px}
+.sc-s{font-size:11px;color:var(--text3)}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.bb{background:var(--blue-l);color:var(--blue)}.bg3{background:var(--green-l);color:var(--green)}.ba{background:var(--amber-l);color:var(--amber)}.br{background:var(--red-l);color:var(--red)}.bgr{background:var(--bg);color:var(--text2);border:1px solid var(--border)}
+/* Alerts */
+.al{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:9px;margin-bottom:8px;font-size:12px}
+.al i{font-size:16px;margin-top:1px;flex-shrink:0}
+.al-tx{color:var(--text);line-height:1.5}.al-ti{font-weight:700;display:block;margin-bottom:1px}
+.ald{background:var(--red-l);border-left:3px solid var(--red)}.ald i{color:var(--red)}
+.alw{background:var(--amber-l);border-left:3px solid var(--amber)}.alw i{color:var(--amber)}
+.ali{background:var(--blue-l);border-left:3px solid var(--blue)}.ali i{color:var(--blue)}
+.als{background:var(--green-l);border-left:3px solid var(--green)}.als i{color:var(--green)}
+/* Filters */
+.fr{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.iw{position:relative}
+.iw i.ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:15px;pointer-events:none}
+.si2{padding:8px 12px 8px 33px;border-radius:9px;border:1px solid var(--border);font-size:13px;background:var(--input-bg);color:var(--text);width:220px;outline:none}
+.si2:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.fsel{padding:8px 12px;border-radius:9px;border:1px solid var(--border);font-size:13px;background:var(--input-bg);color:var(--text);outline:none;cursor:pointer}
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:18px;background:var(--bg);padding:4px;border-radius:10px;width:fit-content;border:1px solid var(--border);flex-wrap:wrap}
+.tab{padding:6px 13px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);transition:all .15s;border:none;background:none}
+.tab.active{background:var(--card);color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+/* Eq grid */
+.eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.ec{background:var(--card);border-radius:var(--r);border:1px solid var(--border);padding:16px;box-shadow:var(--sh);transition:all .2s}
+.ec:hover{border-color:var(--blue-m);box-shadow:0 4px 14px rgba(37,99,235,.12)}
+.ec-h{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.eti{width:48px;height:48px;border-radius:12px;background:var(--blue-l);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.eti i{font-size:24px;color:var(--blue)}
+.ec-i{flex:1;min-width:0}
+.ec-n{font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ec-s{font-size:11px;color:var(--text3);margin-top:2px}
+.pb{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:6px}
+.pf{height:100%;background:var(--blue);border-radius:3px;transition:width .4s}
+.avr{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:9px}
+.ec-a{display:flex;gap:6px;margin-top:12px;padding-top:11px;border-top:1px solid var(--border)}
+/* Reservations */
+.ri{background:var(--card);border-radius:var(--r);border:1px solid var(--border);padding:14px 16px;margin-bottom:10px;box-shadow:var(--sh)}
+.ri-h{display:flex;align-items:flex-start;gap:12px}
+.ri-i{flex:1;min-width:0}
+.ri-n{font-size:14px;font-weight:700;color:var(--text)}
+.ri-m{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;font-size:11px;color:var(--text2)}
+.ri-m span{display:flex;align-items:center;gap:4px}
+.ri-m i{font-size:13px}
+.ri-a{display:flex;gap:8px;margin-top:11px;padding-top:10px;border-top:1px solid var(--border)}
+/* History */
+.hi{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--border);transition:background .12s}
+.hi:hover{background:var(--bg)}.hi:last-child{border-bottom:none}
+.he{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+/* Settings */
+.sr{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border)}
+.sr:last-child{border-bottom:none}
+.sr-l{font-size:13px;font-weight:500;color:var(--text)}.sr-d{font-size:11px;color:var(--text3);margin-top:2px}
+.tgl{width:42px;height:24px;border-radius:12px;background:var(--border);position:relative;cursor:pointer;transition:background .2s;border:none;flex-shrink:0}
+.tgl.on{background:var(--blue)}
+.tgl::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tgl.on::after{transform:translateX(18px)}
+/* Bar chart */
+.bch{display:flex;align-items:flex-end;gap:5px;height:80px;padding:0 0 18px}
+.bw{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.bc{width:100%;background:var(--blue-l);border-radius:4px 4px 0 0;transition:background .15s;min-height:3px}
+.bc:hover{background:var(--blue)}
+.bll{font-size:9px;color:var(--text3);margin-top:4px}
+/* Modal */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;backdrop-filter:blur(3px)}
+.ov[hidden]{display:none}
+.mo{background:var(--card);border-radius:16px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.25);animation:moa .2s ease}
+@keyframes moa{from{opacity:0;transform:scale(.97) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mh{padding:20px 22px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--card);z-index:1}
+.mtt{font-size:16px;font-weight:700;color:var(--text)}
+.mcc{background:none;border:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;padding:3px;border-radius:6px}
+.mcc i{font-size:20px}.mcc:hover{color:var(--text);background:var(--bg)}
+.mb{padding:20px 22px}
+.mf{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--card);position:sticky;bottom:0}
+/* Form */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ffc{grid-column:1/-1}
+.fi{display:flex;flex-direction:column;gap:5px}
+.fi label{font-size:12px;font-weight:600;color:var(--text2)}
+.fi input,.fi select,.fi textarea{padding:9px 11px;border-radius:9px;border:1px solid var(--border);font-size:13px;background:var(--input-bg);color:var(--text);outline:none;transition:border-color .15s;font-family:inherit;width:100%}
+.fi input:focus,.fi select:focus,.fi textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.fi input:disabled{opacity:.6}.fi textarea{resize:vertical;min-height:68px}
+/* Empty */
+.emp{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 16px;color:var(--text3);text-align:center}
+.emp i{font-size:44px;margin-bottom:12px;opacity:.35}.emp p{font-size:14px}
+/* Toast */
+#toast{position:fixed;bottom:max(24px,env(safe-area-inset-bottom,24px));right:max(24px,env(safe-area-inset-right,24px));background:#1e293b;color:#f1f5f9;padding:11px 18px;border-radius:11px;font-size:13px;font-weight:500;opacity:0;transform:translateY(6px);transition:all .25s;pointer-events:none;z-index:9999;max-width:300px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+#toast.on{opacity:1;transform:translateY(0)}
+/* Install banner */
+#ib{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--blue);color:#fff;padding:14px 18px;z-index:300;flex-direction:column;gap:8px;border-top:1px solid rgba(255,255,255,.2);animation:su .3s ease}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+#ib.on{display:flex}
+.ib-r{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ib-i{background:#fff;color:var(--blue);border:none;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.ib-d{background:none;border:1px solid rgba(255,255,255,.4);color:#fff;padding:7px 12px;border-radius:8px;font-size:13px;cursor:pointer}
+/* Profile big avatar */
+.pa{width:68px;height:68px;border-radius:50%;background:var(--blue-l);border:3px solid var(--blue-m);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:var(--blue);flex-shrink:0}
+/* SB overlay */
+.sb-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:49}
+.sb-ov.on{display:block}
+/* Responsive */
+@media(max-width:768px){
+  .tb{display:flex!important}
+  .ct{padding:16px;padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  .sg{grid-template-columns:1fr 1fr}.tg{grid-template-columns:1fr}.eg{grid-template-columns:1fr}
+  .fg{grid-template-columns:1fr}.ffc{grid-column:1}.si2{width:100%}.tabs{width:100%}
+  #bn{display:flex}
+  .auth-card{border-radius:16px}
+  .ab{padding:20px 20px 24px}.ah{padding:22px 20px 0}.back-btn{padding:10px 20px 0}.steps{padding:12px 20px 0}
+}
+#bn{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);z-index:40;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));gap:2px}
+.bn-i{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 4px;border-radius:10px;cursor:pointer;transition:all .15s;border:none;background:none;color:var(--text3)}
+.bn-i.active{color:var(--blue)}.bn-i i{font-size:22px}.bn-i span{font-size:10px;font-weight:500}.bn-i:hover{background:var(--bg)}
+</style>
+</head>
+<body>
+
+<!-- ══ SPLASH ══ -->
+<div id="splash">
+  <div class="sp-logo">🎒</div>
+  <div class="sp-name">EscolaStock</div>
+  <div class="sp-sub">Gestão de Equipamento Escolar</div>
+  <div class="sp-loader"><span class="sp-dot"></span><span class="sp-dot"></span><span class="sp-dot"></span></div>
+</div>
+
+<!-- ══ AUTH ══ -->
+<div id="auth-wrap" hidden>
+  <div class="auth-card">
+
+    <!-- LOGIN PRINCIPAL -->
+    <div class="auth-screen active" id="s-login">
+      <div class="ah">
+        <div class="ah-logo">🎒</div>
+        <div class="ah-title">Bem-vindo ao EscolaStock</div>
+        <div class="ah-sub">Gestão de equipamento informático escolar</div>
+      </div>
+      <div class="ab">
+        <div class="auth-toast" id="login-toast"></div>
+        <button class="social-btn" onclick="showScreen('s-google')">
+          <span class="social-icon g-icon"></span>Entrar com Google
+        </button>
+        <button class="social-btn" onclick="showScreen('s-microsoft')">
+          <span class="social-icon ms-icon"></span>Entrar com Microsoft
+        </button>
+        <div class="divider"><span>ou</span></div>
+        <button class="social-btn" onclick="showScreen('s-email')" style="background:#f8fafc">
+          <i class="ti ti-mail" style="font-size:20px;color:#475569"></i>Entrar com Email
+        </button>
+        <div class="auth-row" style="justify-content:center;margin-top:18px">
+          <span>Não tens conta?</span>
+          <button class="auth-link" onclick="showScreen('s-register')">Criar conta</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN GOOGLE -->
+    <div class="auth-screen" id="s-google">
+      <button class="back-btn" onclick="showScreen('s-login')"><i class="ti ti-arrow-left"></i>Voltar</button>
+      <div class="ah">
+        <div class="ah-logo"><span class="g-icon" style="width:32px;height:32px"></span></div>
+        <div class="ah-title">Entrar com Google</div>
+        <div class="ah-sub">Usa a tua conta Google para aceder</div>
+      </div>
+      <div class="ab">
+        <div class="auth-toast" id="google-toast"></div>
+        <div class="af">
+          <label>Email ou número de telefone</label>
+          <div class="af-in"><input id="g-email" type="email" placeholder="exemplo@gmail.com" oninput="clearToast('google-toast')"/></div>
+        </div>
+        <div class="af" id="g-pass-wrap" style="display:none">
+          <label>Palavra-passe</label>
+          <div class="af-in">
+            <input id="g-pass" type="password" placeholder="Introduz a palavra-passe" oninput="clearToast('google-toast')"/>
+            <button class="eye" onclick="togglePwd('g-pass',this)"><i class="ti ti-eye"></i></button>
+          </div>
+        </div>
+        <button class="auth-btn" id="g-next-btn" onclick="googleNext()"><i class="ti ti-arrow-right"></i>Seguinte</button>
+        <div class="auth-row">
+          <button class="auth-link" onclick="showScreen('s-recover-email')">Esqueci-me do email</button>
+          <button class="auth-link" onclick="showScreen('s-recover')">Esqueci-me da palavra-passe</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN MICROSOFT -->
+    <div class="auth-screen" id="s-microsoft">
+      <button class="back-btn" onclick="showScreen('s-login')"><i class="ti ti-arrow-left"></i>Voltar</button>
+      <div class="ah">
+        <div class="ah-logo"><span class="ms-icon" style="width:32px;height:32px"></span></div>
+        <div class="ah-title">Entrar com Microsoft</div>
+        <div class="ah-sub">Usa a tua conta Microsoft / Escola</div>
+      </div>
+      <div class="ab">
+        <div class="auth-toast" id="ms-toast"></div>
+        <div class="af">
+          <label>Email ou nome de utilizador</label>
+          <div class="af-in"><input id="ms-email" type="email" placeholder="utilizador@escola.pt" oninput="clearToast('ms-toast')"/></div>
+        </div>
+        <div class="af" id="ms-pass-wrap" style="display:none">
+          <label>Palavra-passe</label>
+          <div class="af-in">
+            <input id="ms-pass" type="password" placeholder="Palavra-passe"/>
+            <button class="eye" onclick="togglePwd('ms-pass',this)"><i class="ti ti-eye"></i></button>
+          </div>
+        </div>
+        <button class="auth-btn" id="ms-next-btn" onclick="msNext()"><i class="ti ti-arrow-right"></i>Seguinte</button>
+        <div class="auth-row">
+          <button class="auth-link" onclick="showScreen('s-recover')">Esqueci-me da palavra-passe</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN EMAIL -->
+    <div class="auth-screen" id="s-email">
+      <button class="back-btn" onclick="showScreen('s-login')"><i class="ti ti-arrow-left"></i>Voltar</button>
+      <div class="ah">
+        <div class="ah-logo"><i class="ti ti-mail" style="font-size:28px;color:var(--blue)"></i></div>
+        <div class="ah-title">Entrar com Email</div>
+        <div class="ah-sub">Introduz os teus dados de acesso</div>
+      </div>
+      <div class="ab">
+        <div class="auth-toast" id="email-toast"></div>
+        <div class="af">
+          <label>Email *</label>
+          <div class="af-in"><input id="em-email" type="email" placeholder="email@escola.pt" oninput="clearToast('email-toast')"/></div>
+        </div>
+        <div class="af">
+          <label>Palavra-passe *</label>
+          <div class="af-in">
+            <input id="em-pass" type="password" placeholder="Palavra-passe" oninput="clearToast('email-toast')"/>
+            <button class="eye" onclick="togglePwd('em-pass',this)"><i class="ti ti-eye"></i></button>
+          </div>
+        </div>
+        <button class="auth-btn" onclick="doEmailLogin()"><i class="ti ti-login"></i>Entrar</button>
+        <div class="auth-row">
+          <button class="auth-link" onclick="showScreen('s-recover')">Esqueci-me da palavra-passe</button>
+          <button class="auth-link" onclick="showScreen('s-register')">Criar conta</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECUPERAR PALAVRA-PASSE -->
+    <div class="auth-screen" id="s-recover">
+      <button class="back-btn" onclick="showScreen('s-login')"><i class="ti ti-arrow-left"></i>Voltar</button>
+      <div class="steps"><div class="step active" id="rs1"></div><div class="step" id="rs2"></div><div class="step" id="rs3"></div></div>
+      <div class="ah">
+        <div class="ah-logo"><i class="ti ti-lock-open" style="font-size:28px;color:var(--blue)"></i></div>
+        <div class="ah-title" id="rec-title">Recuperar palavra-passe</div>
+        <div class="ah-sub" id="rec-sub">Introduz o teu email para receber um código</div>
+      </div>
+      <div class="ab" id="rec-step1">
+        <div class="auth-toast" id="rec-toast"></div>
+        <div class="af"><label>Email da conta *</label><div class="af-in"><input id="rec-email" type="email" placeholder="email@escola.pt"/></div></div>
+        <button class="auth-btn" onclick="recStep1()"><i class="ti ti-send"></i>Enviar código</button>
+      </div>
+      <div class="ab" id="rec-step2" style="display:none">
+        <div class="auth-toast" id="rec-toast2"></div>
+        <p style="font-size:13px;color:#64748b;margin-bottom:16px">Introduz o código de 6 dígitos enviado para <b id="rec-email-show"></b></p>
+        <div class="otp-wrap" id="otp-wrap"></div>
+        <button class="auth-btn" style="margin-top:14px" onclick="recStep2()"><i class="ti ti-check"></i>Verificar código</button>
+        <div style="text-align:center;margin-top:12px"><button class="auth-link" onclick="recStep1Again()">Reenviar código</button></div>
+      </div>
+      <div class="ab" id="rec-step3" style="display:none">
+        <div class="auth-toast" id="rec-toast3"></div>
+        <div class="af"><label>Nova palavra-passe *</label><div class="af-in"><input id="rec-newpass" type="password" placeholder="Mínimo 6 caracteres"/><button class="eye" onclick="togglePwd('rec-newpass',this)"><i class="ti ti-eye"></i></button></div></div>
+        <div class="af"><label>Confirmar palavra-passe *</label><div class="af-in"><input id="rec-confpass" type="password" placeholder="Repete a palavra-passe"/><button class="eye" onclick="togglePwd('rec-confpass',this)"><i class="ti ti-eye"></i></button></div></div>
+        <button class="auth-btn" onclick="recStep3()"><i class="ti ti-device-floppy"></i>Guardar nova palavra-passe</button>
+      </div>
+      <div class="ab" id="rec-success" style="display:none">
+        <div class="success-box">
+          <div class="success-icon"><i class="ti ti-circle-check"></i></div>
+          <div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px">Palavra-passe alterada!</div>
+          <div style="font-size:13px;color:#64748b;margin-bottom:20px">Podes agora entrar com a nova palavra-passe.</div>
+          <button class="auth-btn" onclick="showScreen('s-login')"><i class="ti ti-login"></i>Ir para o Login</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECUPERAR EMAIL -->
+    <div class="auth-screen" id="s-recover-email">
+      <button class="back-btn" onclick="showScreen('s-google')"><i class="ti ti-arrow-left"></i>Voltar</button>
+      <div class="ah">
+        <div class="ah-logo"><i class="ti ti-mail-search" style="font-size:28px;color:var(--blue)"></i></div>
+        <div class="ah-title">Recuperar email</div>
+        <div class="ah-sub">Usa o teu telemóvel ou email de recuperação para encontrar a conta</div>
+      </div>
+      <div class="ab" id="re-form">
+        <div class="auth-toast" id="re-toast"></div>
+        <div style="display:flex;gap:8px;margin-bottom:16px;background:#f1f5f9;padding:4px;border-radius:10px">
+          <button class="tab active" id="re-tab-phone" onclick="reTab('phone')" style="flex:1">📱 Telemóvel</button>
+          <button class="tab" id="re-tab-email" onclick="reTab('email')" style="flex:1">📧 Email rec.</button>
+        </div>
+        <div id="re-phone-f">
+          <div class="af"><label>Número de telemóvel</label><div class="af-in"><input id="re-phone" type="tel" placeholder="+351 9XX XXX XXX"/></div></div>
+        </div>
+        <div id="re-email-f" style="display:none">
+          <div class="af"><label>Email de recuperação</label><div class="af-in"><input id="re-email" type="email" placeholder="recuperacao@email.com"/></div></div>
+        </div>
+        <button class="auth-btn" onclick="findAccounts()"><i class="ti ti-search"></i>Encontrar conta</button>
+      </div>
+      <div id="re-results" style="display:none;padding:0 28px 28px">
+        <p style="font-size:13px;color:#64748b;margin-bottom:14px">Contas encontradas:</p>
+        <div id="re-accounts-list"></div>
+        <button class="auth-btn" style="margin-top:8px" onclick="document.getElementById('re-form').style.display='block';document.getElementById('re-results').style.display='none'"><i class="ti ti-arrow-left"></i>Tentar de novo</button>
+      </div>
+    </div>
+
+    <!-- CRIAR CONTA -->
+    <div class="auth-screen" id="s-register">
+      <button class="back-btn" onclick="showScreen('s-login')"><i class="ti ti-arrow-left"></i>Voltar</button>
+      <div class="ah">
+        <div class="ah-logo"><i class="ti ti-user-plus" style="font-size:28px;color:var(--blue)"></i></div>
+        <div class="ah-title">Criar conta</div>
+        <div class="ah-sub">Preenche os dados para criar a tua conta</div>
+      </div>
+      <div class="ab">
+        <div class="auth-toast" id="reg-toast"></div>
+        <div class="af"><label>Nome completo *</label><div class="af-in"><input id="reg-name" type="text" placeholder="Ex: João Silva" oninput="clearToast('reg-toast')"/></div></div>
+        <div class="af"><label>Email *</label><div class="af-in"><input id="reg-email" type="email" placeholder="email@escola.pt" oninput="clearToast('reg-toast')"/></div></div>
+        <div class="af"><label>Palavra-passe *</label><div class="af-in"><input id="reg-pass" type="password" placeholder="Mínimo 6 caracteres"/><button class="eye" onclick="togglePwd('reg-pass',this)"><i class="ti ti-eye"></i></button></div></div>
+        <div class="af"><label>Confirmar palavra-passe *</label><div class="af-in"><input id="reg-conf" type="password" placeholder="Repete a palavra-passe"/><button class="eye" onclick="togglePwd('reg-conf',this)"><i class="ti ti-eye"></i></button></div></div>
+        <div class="terms-row">
+          <input type="checkbox" id="reg-terms"/>
+          <label for="reg-terms">Aceito os <button class="auth-link" onclick="alert('Termos de utilização:\n\nEscolaStock é uma aplicação de gestão de equipamentos. Os dados são guardados localmente no dispositivo.')">Termos de Utilização</button> e a <button class="auth-link" onclick="alert('Política de Privacidade:\n\nOs dados inseridos ficam apenas no teu dispositivo e não são partilhados com terceiros.')">Política de Privacidade</button></label>
+        </div>
+        <button class="auth-btn" onclick="doRegister()"><i class="ti ti-user-check"></i>Criar Conta</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app-wrap" hidden>
+
+<aside class="sb" id="sb">
+  <div class="sb-lg"><div class="sb-li"><i class="ti ti-school"></i></div><div><div class="sb-ln">EscolaStock</div><div class="sb-ls">Gestão de Equipamento</div></div></div>
+  <div class="sb-u"><div class="uav" id="sba">JM</div><div style="min-width:0"><div class="sb-un" id="sbn">Utilizador</div><div class="sb-ue" id="sbe">email@escola.pt</div></div></div>
+  <div class="sb-n">
+    <div class="sb-sec">Principal</div>
+    <div class="nvi active" data-p="dashboard"><i class="ti ti-layout-dashboard"></i>Painel</div>
+    <div class="nvi" data-p="equipment"><i class="ti ti-device-laptop"></i>Equipamentos</div>
+    <div class="nvi" data-p="reservations"><i class="ti ti-calendar-check"></i>Reservas</div>
+    <div class="sb-sec">Conta</div>
+    <div class="nvi" data-p="history"><i class="ti ti-history"></i>Histórico</div>
+    <div class="nvi" data-p="notifications"><i class="ti ti-bell"></i>Notificações<span class="nbd" id="nb1">0</span></div>
+    <div class="nvi" data-p="profile"><i class="ti ti-user"></i>Perfil</div>
+    <div class="nvi" data-p="settings"><i class="ti ti-settings"></i>Definições</div>
+  </div>
+  <div class="sb-lo"><button class="sb-lb" onclick="doLogout()"><i class="ti ti-logout"></i>Terminar sessão</button></div>
+</aside>
+<div class="sb-ov" id="sbov" onclick="closeSB()"></div>
+
+<div class="mn">
+  <header class="tb on" id="tb">
+    <button class="hb" onclick="openSB()"><i class="ti ti-menu-2"></i></button>
+    <span class="tb-t">EscolaStock</span>
+    <div style="width:32px"></div>
+  </header>
+
+  <div class="ct" id="ct">
+
+    <!-- DASHBOARD -->
+    <div class="pg active" id="pg-dashboard">
+      <div class="ph">
+        <div><h1 id="greet">Bom dia! 👋</h1><p id="ddate"></p></div>
+        <div class="pha"><button class="btn bs bsm" onclick="nav('equipment')"><i class="ti ti-device-laptop"></i>Equipamentos</button><button class="btn bp bsm" onclick="openEqM()"><i class="ti ti-plus"></i>Adicionar</button></div>
+      </div>
+      <div class="sg" id="d-stats"></div>
+      <div class="tg">
+        <div>
+          <div class="card" style="margin-bottom:14px"><div class="ch"><span class="ct2"><i class="ti ti-alert-triangle"></i>Alertas ativos</span></div><div style="padding:12px 14px" id="d-alerts"></div></div>
+          <div class="card"><div class="ch"><span class="ct2"><i class="ti ti-chart-bar"></i>Atividade — 7 dias</span></div><div style="padding:10px 16px 0"><div class="bch" id="d-chart"></div></div></div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:14px"><div class="ch"><span class="ct2"><i class="ti ti-device-laptop"></i>Equipamentos</span><button class="btn bgh bsm" onclick="nav('equipment')">Ver tudo →</button></div><div id="d-eql"></div></div>
+          <div class="card"><div class="ch"><span class="ct2"><i class="ti ti-clock"></i>Atividade recente</span><button class="btn bgh bsm" onclick="nav('history')">Ver tudo →</button></div><div id="d-act"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EQUIPAMENTOS -->
+    <div class="pg" id="pg-equipment">
+      <div class="ph"><div><h1>Equipamentos</h1><p id="eq-lbl">0 registados</p></div><button class="btn bp" onclick="openEqM()"><i class="ti ti-plus"></i>Adicionar</button></div>
+      <div class="fr"><div class="iw"><i class="ti ti-search ico"></i><input class="si2" id="eqs" placeholder="Pesquisar…" oninput="renderEq()"/></div><select class="fsel" id="eqtf" onchange="renderEq()"><option value="">Todos os tipos</option><option>Portátil</option><option>Projetor</option><option>Monitor</option><option>Tablet</option><option>Headset</option><option>Rato</option><option>Teclado</option><option>Webcam</option><option>Impressora</option><option>Outro</option></select><select class="fsel" id="eqcf" onchange="renderEq()"><option value="">Todos os estados</option><option>Novo</option><option>Bom</option><option>Razoável</option><option>Em Reparação</option></select></div>
+      <div class="eg" id="eq-grid"></div>
+    </div>
+
+    <!-- RESERVAS -->
+    <div class="pg" id="pg-reservations">
+      <div class="ph"><div><h1>Reservas</h1><p id="res-lbl">0 no total</p></div></div>
+      <div class="tabs" id="rtabs"><button class="tab active" data-f="all" onclick="setRT(this)">Todas</button><button class="tab" data-f="ativa" onclick="setRT(this)">Ativas</button><button class="tab" data-f="devolvida" onclick="setRT(this)">Devolvidas</button><button class="tab" data-f="cancelada" onclick="setRT(this)">Canceladas</button></div>
+      <div id="res-list"></div>
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div class="pg" id="pg-history">
+      <div class="ph"><div><h1>Histórico</h1><p id="hist-lbl">0 registos</p></div></div>
+      <div class="fr"><div class="iw"><i class="ti ti-search ico"></i><input class="si2" id="hists" placeholder="Pesquisar…" oninput="renderHist()"/></div><select class="fsel" id="histaf" onchange="renderHist()"><option value="">Todas as ações</option><option value="equipment_add">Equip. Adicionado</option><option value="equipment_edit">Equip. Editado</option><option value="equipment_delete">Equip. Removido</option><option value="reservation_create">Reserva Criada</option><option value="reservation_cancel">Reserva Cancelada</option><option value="reservation_return">Devolução</option><option value="login">Login</option></select></div>
+      <div class="card"><div id="hist-list"></div></div>
+    </div>
+
+    <!-- NOTIFICAÇÕES -->
+    <div class="pg" id="pg-notifications">
+      <div class="ph"><div><h1>Notificações</h1><p id="notif-lbl">0 alertas</p></div></div>
+      <div id="notif-list"></div>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="pg" id="pg-profile">
+      <div class="ph"><div><h1>Perfil</h1><p>Informações da sua conta</p></div></div>
+      <div class="card" style="max-width:540px">
+        <div style="display:flex;align-items:center;gap:16px;padding:20px;border-bottom:1px solid var(--border)"><div class="pa" id="pav">JM</div><div><div style="font-size:17px;font-weight:700;color:var(--text)" id="pnm">Utilizador</div><div style="font-size:12px;color:var(--text3)" id="pem">email@escola.pt</div><span class="badge bb" style="margin-top:6px" id="pcg">Utilizador</span></div></div>
+        <div class="cb"><div class="fg"><div class="fi"><label>Nome completo</label><input id="p-n"/></div><div class="fi"><label>Email</label><input id="p-e" type="email"/></div><div class="fi ffc"><label>Cargo / Função</label><input id="p-c" placeholder="Ex: Professor, Técnico…"/></div><div class="fi ffc"><label>Biografia</label><textarea id="p-b" rows="3" placeholder="Uma breve descrição…"></textarea></div></div><button class="btn bp" style="margin-top:16px;width:100%;justify-content:center" onclick="saveProf()"><i class="ti ti-device-floppy"></i>Guardar alterações</button></div>
+      </div>
+    </div>
+
+    <!-- DEFINIÇÕES -->
+    <div class="pg" id="pg-settings">
+      <div class="ph"><div><h1>Definições</h1><p>Personalizar a aplicação</p></div></div>
+      <div style="max-width:500px">
+        <div class="card" style="margin-bottom:14px"><div class="ch"><span class="ct2"><i class="ti ti-palette"></i>Aparência</span></div><div class="cb"><div class="sr"><div><div class="sr-l">Tema Escuro</div><div class="sr-d">Ativar modo noturno</div></div><button class="tgl" id="dtgl" onclick="toggleDark()"></button></div><div class="sr"><div><div class="sr-l">Idioma</div><div class="sr-d">Idioma da interface</div></div><select class="fsel" style="font-size:12px"><option>🇵🇹 Português</option><option>🇬🇧 English</option></select></div></div></div>
+        <div class="card" style="margin-bottom:14px"><div class="ch"><span class="ct2"><i class="ti ti-bell"></i>Notificações</span></div><div class="cb"><div class="sr"><div><div class="sr-l">Alertas na App</div><div class="sr-d">Notificações de stock e reservas</div></div><button class="tgl on" onclick="tglS(this)"></button></div><div class="sr"><div><div class="sr-l">Lembretes de devolução</div><div class="sr-d">Avisos antes do prazo</div></div><button class="tgl on" onclick="tglS(this)"></button></div></div></div>
+        <div class="card" style="margin-bottom:14px"><div class="ch"><span class="ct2"><i class="ti ti-database"></i>Dados</span></div><div class="cb"><div class="sr"><div><div class="sr-l">Exportar dados</div><div class="sr-d">Descarregar cópia em JSON</div></div><button class="btn bs bsm" onclick="expData()"><i class="ti ti-download"></i>Exportar</button></div><div class="sr"><div><div class="sr-l" style="color:var(--red)">Repor dados</div><div class="sr-d">Repõe os dados de demonstração</div></div><button class="btn bd bsm" onclick="resetData()"><i class="ti ti-refresh"></i>Repor</button></div></div></div>
+        <div class="card" id="pwa-card" style="margin-bottom:14px;display:none"><div class="ch"><span class="ct2"><i class="ti ti-device-mobile"></i>Instalar como App</span></div><div class="cb"><div class="sr"><div><div class="sr-l">Adicionar à homescreen</div><div class="sr-d">Instala como app nativa</div></div><button class="btn bp bsm" id="sib-btn"><i class="ti ti-download"></i>Instalar</button></div></div></div>
+        <button class="btn bp" style="width:100%;justify-content:center" onclick="toast('✅ Definições guardadas')"><i class="ti ti-device-floppy"></i>Guardar Definições</button>
+      </div>
+    </div>
+
+  </div>
+
+  <nav id="bn">
+    <button class="bn-i active" data-p="dashboard" onclick="nav('dashboard')"><i class="ti ti-layout-dashboard"></i><span>Painel</span></button>
+    <button class="bn-i" data-p="equipment" onclick="nav('equipment')"><i class="ti ti-device-laptop"></i><span>Stock</span></button>
+    <button class="bn-i" data-p="reservations" onclick="nav('reservations')"><i class="ti ti-calendar-check"></i><span>Reservas</span></button>
+    <button class="bn-i" data-p="notifications" onclick="nav('notifications')" style="position:relative"><i class="ti ti-bell"></i><span>Alertas</span><span class="nbd" id="nb2" style="top:2px;right:6px"></span></button>
+    <button class="bn-i" data-p="settings" onclick="nav('settings')"><i class="ti ti-settings"></i><span>Config</span></button>
+  </nav>
+</div>
+</div>
+
+<!-- MODAL EQ -->
+<div class="ov" id="eqm" hidden onclick="closeEqM(event)">
+  <div class="mo">
+    <div class="mh"><span class="mtt" id="eqmt">Adicionar Equipamento</span><button class="mcc" onclick="closeEqM()"><i class="ti ti-x"></i></button></div>
+    <div class="mb"><div class="fg"><div class="fi ffc"><label>Nome *</label><input id="efn" placeholder="Ex: HP ProBook 450"/></div><div class="fi"><label>Tipo *</label><select id="eft"><option>Portátil</option><option>Projetor</option><option>Monitor</option><option>Tablet</option><option>Headset</option><option>Rato</option><option>Teclado</option><option>Webcam</option><option>Impressora</option><option>Outro</option></select></div><div class="fi"><label>Código / Nº Série *</label><input id="efc" placeholder="Ex: PT001"/></div><div class="fi"><label>Quantidade Total *</label><input id="efq" type="number" min="1" value="1"/></div><div class="fi"><label>Estado</label><select id="efcd"><option>Novo</option><option selected>Bom</option><option>Razoável</option><option>Em Reparação</option></select></div><div class="fi ffc"><label>Localização</label><input id="efl" placeholder="Ex: Sala de Informática 1"/></div><div class="fi ffc"><label>Descrição</label><textarea id="efd" rows="2" placeholder="Breve descrição…"></textarea></div></div></div>
+    <div class="mf"><button class="btn bs" onclick="closeEqM()">Cancelar</button><button class="btn bp" onclick="saveEq()" id="esb">Adicionar</button></div>
+  </div>
+</div>
+
+<!-- MODAL RES -->
+<div class="ov" id="resm" hidden onclick="closeResM(event)">
+  <div class="mo">
+    <div class="mh"><span class="mtt">Nova Reserva</span><button class="mcc" onclick="closeResM()"><i class="ti ti-x"></i></button></div>
+    <div class="mb"><div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border-radius:10px;margin-bottom:16px;border:1px solid var(--border)" id="rprev"></div><div class="fg"><div class="fi"><label>Nome do Utilizador *</label><input id="rfn" placeholder="Nome completo"/></div><div class="fi"><label>Email *</label><input id="rfe" type="email" placeholder="email@escola.pt"/></div><div class="fi"><label>Quantidade *</label><input id="rfq" type="number" min="1" value="1"/></div><div class="fi"><label>Data de Início *</label><input id="rfs" type="date"/></div><div class="fi ffc"><label>Data de Devolução Prevista</label><input id="rfd" type="date"/></div><div class="fi ffc"><label>Notas</label><textarea id="rfno" rows="2" placeholder="Notas adicionais…"></textarea></div></div></div>
+    <div class="mf"><button class="btn bs" onclick="closeResM()">Cancelar</button><button class="btn bp" onclick="saveRes()">Confirmar Reserva</button></div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRM -->
+<div class="ov" id="cfm" hidden onclick="closeCF(event)">
+  <div class="mo" style="max-width:400px">
+    <div class="mh"><span class="mtt" id="cft">Confirmar</span><button class="mcc" onclick="closeCF()"><i class="ti ti-x"></i></button></div>
+    <div class="mb"><p style="font-size:14px;color:var(--text2);line-height:1.6" id="cfmsg"></p></div>
+    <div class="mf"><button class="btn bs" onclick="closeCF()">Cancelar</button><button class="btn bd" id="cfok">Confirmar</button></div>
+  </div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div id="ib"><div class="ib-r"><div><div style="font-size:13px;font-weight:500">📲 Instalar EscolaStock como App</div><div style="font-size:11px;color:rgba(255,255,255,.8)">Usa offline, sempre disponível</div></div><div style="display:flex;gap:8px"><button class="ib-i" id="ib-btn">Instalar</button><button class="ib-d" onclick="dismissIB()">Depois</button></div></div></div>
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════
+   CONSTANTES
+══════════════════════════════════════ */
+const IC={Portátil:'ti-device-laptop',Projetor:'ti-presentation',Monitor:'ti-device-desktop',Tablet:'ti-device-tablet',Headset:'ti-headphones',Rato:'ti-mouse',Teclado:'ti-keyboard',Webcam:'ti-camera',Impressora:'ti-printer',Outro:'ti-package'};
+const CC={Novo:'bg3',Bom:'bb',Razoável:'ba','Em Reparação':'br'};
+const SC={ativa:'bb',devolvida:'bg3',cancelada:'bgr',atrasada:'br'};
+const SL={ativa:'Ativa',devolvida:'Devolvida',cancelada:'Cancelada',atrasada:'Atrasada'};
+const AE={equipment_add:'📦',equipment_edit:'✏️',equipment_delete:'🗑️',reservation_create:'🔖',reservation_cancel:'❌',reservation_return:'✅',login:'🔑',logout:'👋',profile_update:'👤',settings_change:'⚙️'};
+const AL={equipment_add:'Equip. Add',equipment_edit:'Equip. Edit',equipment_delete:'Equip. Del',reservation_create:'Reserva',reservation_cancel:'Cancelada',reservation_return:'Devolução',login:'Login',logout:'Logout',profile_update:'Perfil',settings_change:'Definições'};
+
+/* ══════════════════════════════════════
+   DADOS
+══════════════════════════════════════ */
+const DEMO_DATA={
+  equipment:[
+    {id:'e1',name:'HP ProBook 450',type:'Portátil',code:'PT001',total:10,avail:8,cond:'Bom',loc:'Sala Inf. 1',desc:'Portátil para uso em sala de aula'},
+    {id:'e2',name:'Epson EB-X51',type:'Projetor',code:'PJ003',total:3,avail:0,cond:'Bom',loc:'Sala Multimédia',desc:'Projetor para apresentações'},
+    {id:'e3',name:'Dell UltraSharp 24"',type:'Monitor',code:'MN007',total:6,avail:5,cond:'Novo',loc:'Lab. CAD',desc:'Monitor de alta resolução'},
+    {id:'e4',name:'Jabra Evolve2 30',type:'Headset',code:'HS012',total:5,avail:2,cond:'Bom',loc:'Sala Línguas',desc:'Headset para aprendizagem'},
+    {id:'e5',name:'iPad Pro 11"',type:'Tablet',code:'TB004',total:4,avail:3,cond:'Novo',loc:'Biblioteca',desc:'Tablets para pesquisa'},
+    {id:'e6',name:'Logitech M330',type:'Rato',code:'RT021',total:8,avail:2,cond:'Razoável',loc:'Stock Geral',desc:'Rato sem fio silencioso'},
+    {id:'e7',name:'Lenovo ThinkPad X1',type:'Portátil',code:'PT009',total:5,avail:4,cond:'Bom',loc:'Sala Inf. 2',desc:'Portátil premium'},
+    {id:'e8',name:'Webcam Logitech C920',type:'Webcam',code:'WC005',total:6,avail:6,cond:'Novo',loc:'Stock Geral',desc:'Webcam HD'},
+  ],
+  reservations:[
+    {id:'r1',eqid:'e1',eqn:'HP ProBook 450',eqt:'Portátil',un:'Ana Silva',ue:'a.silva@escola.pt',qty:1,start:'2026-05-02',end:'2026-05-10',status:'ativa',notes:'Projeto de robótica'},
+    {id:'r2',eqid:'e5',eqn:'iPad Pro 11"',eqt:'Tablet',un:'Sofia Costa',ue:'s.costa@escola.pt',qty:1,start:'2026-05-12',end:'2026-05-19',status:'ativa',notes:''},
+    {id:'r3',eqid:'e4',eqn:'Jabra Evolve2 30',eqt:'Headset',un:'Rui Ferreira',ue:'r.ferreira@escola.pt',qty:2,start:'2026-05-08',end:'2026-05-15',status:'ativa',notes:''},
+    {id:'r4',eqid:'e3',eqn:'Dell UltraSharp 24"',eqt:'Monitor',un:'Carlos Melo',ue:'c.melo@escola.pt',qty:1,start:'2026-05-05',end:'2026-05-12',status:'devolvida',notes:''},
+    {id:'r5',eqid:'e1',eqn:'HP ProBook 450',eqt:'Portátil',un:'Marta Lopes',ue:'m.lopes@escola.pt',qty:1,start:'2026-05-01',end:'2026-05-08',status:'devolvida',notes:'Aula laboratorial'},
+    {id:'r6',eqid:'e6',eqn:'Logitech M330',eqt:'Rato',un:'Pedro Santos',ue:'p.santos@escola.pt',qty:1,start:'2026-05-10',end:null,status:'ativa',notes:''},
+  ],
+  activity:[
+    {id:'a1',action:'reservation_create',desc:'Reserva de "iPad Pro 11"" criada para Sofia Costa',user:'João Martins',ts:'2026-05-13T09:24:00'},
+    {id:'a2',action:'reservation_return',desc:'"Dell UltraSharp 24"" devolvido por Carlos Melo',user:'João Martins',ts:'2026-05-13T08:51:00'},
+    {id:'a3',action:'equipment_add',desc:'Equipamento "Webcam Logitech C920" adicionado',user:'João Martins',ts:'2026-05-12T11:20:00'},
+    {id:'a4',action:'login',desc:'Sessão iniciada',user:'João Martins',ts:'2026-05-12T08:59:00'},
+  ],
+  settings:{darkMode:false}
+};
+
+/* ══════════════════════════════════════
+   AUTH STATE
+══════════════════════════════════════ */
+function getUsers(){try{return JSON.parse(localStorage.getItem('es_users')||'[]');}catch{return[];}}
+function saveUsers(u){localStorage.setItem('es_users',JSON.stringify(u));}
+function getSession(){try{return JSON.parse(localStorage.getItem('es_session'));}catch{return null;}}
+function saveSession(s){localStorage.setItem('es_session',JSON.stringify(s));}
+function clearSession(){localStorage.removeItem('es_session');}
+
+let currentUser=null;
+let recoverEmail='';
+let googleStep=1,msStep=1;
+
+/* ══════════════════════════════════════
+   AUTH HELPERS
+══════════════════════════════════════ */
+function showScreen(id){
+  document.querySelectorAll('.auth-screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  if(id==='s-google'){googleStep=1;document.getElementById('g-pass-wrap').style.display='none';document.getElementById('g-next-btn').innerHTML='<i class="ti ti-arrow-right"></i>Seguinte';document.getElementById('g-email').value='';}
+  if(id==='s-microsoft'){msStep=1;document.getElementById('ms-pass-wrap').style.display='none';document.getElementById('ms-next-btn').innerHTML='<i class="ti ti-arrow-right"></i>Seguinte';document.getElementById('ms-email').value='';}
+}
+function togglePwd(id,btn){
+  const inp=document.getElementById(id);
+  const show=inp.type==='password';
+  inp.type=show?'text':'password';
+  btn.querySelector('i').className=show?'ti ti-eye-off':'ti ti-eye';
+}
+function showAuthToast(id,msg,type='err'){
+  const el=document.getElementById(id);
+  el.textContent=msg;el.className='auth-toast '+type+' show';
+}
+function clearToast(id){const el=document.getElementById(id);if(el)el.classList.remove('show');}
+
+/* ══════════════════════════════════════
+   GOOGLE AUTH FLOW
+══════════════════════════════════════ */
+function googleNext(){
+  if(googleStep===1){
+    const email=document.getElementById('g-email').value.trim();
+    if(!email||!email.includes('@')){showAuthToast('google-toast','Introduz um email ou número de telefone válido');return;}
+    document.getElementById('g-pass-wrap').style.display='block';
+    document.getElementById('g-next-btn').innerHTML='<i class="ti ti-login"></i>Entrar';
+    googleStep=2;
+  }else{
+    const email=document.getElementById('g-email').value.trim();
+    const pass=document.getElementById('g-pass').value;
+    if(!pass){showAuthToast('google-toast','Introduz a palavra-passe');return;}
+    doLogin(email,pass,'google-toast','Google');
+  }
+}
+
+/* ══════════════════════════════════════
+   MICROSOFT AUTH FLOW
+══════════════════════════════════════ */
+function msNext(){
+  if(msStep===1){
+    const email=document.getElementById('ms-email').value.trim();
+    if(!email||!email.includes('@')){showAuthToast('ms-toast','Introduz um email válido');return;}
+    document.getElementById('ms-pass-wrap').style.display='block';
+    document.getElementById('ms-next-btn').innerHTML='<i class="ti ti-login"></i>Entrar';
+    msStep=2;
+  }else{
+    const email=document.getElementById('ms-email').value.trim();
+    const pass=document.getElementById('ms-pass').value;
+    if(!pass){showAuthToast('ms-toast','Introduz a palavra-passe');return;}
+    doLogin(email,pass,'ms-toast','Microsoft');
+  }
+}
+
+/* ══════════════════════════════════════
+   EMAIL LOGIN
+══════════════════════════════════════ */
+function doEmailLogin(){
+  const email=document.getElementById('em-email').value.trim();
+  const pass=document.getElementById('em-pass').value;
+  if(!email||!pass){showAuthToast('email-toast','Preenche todos os campos');return;}
+  doLogin(email,pass,'email-toast','Email');
+}
+
+/* ══════════════════════════════════════
+   LOGIN CORE
+══════════════════════════════════════ */
+function doLogin(email,pass,toastId,method){
+  const users=getUsers();
+  let user=users.find(u=>u.email.toLowerCase()===email.toLowerCase());
+  if(!user){
+    // Auto-create demo account on first login with any provider
+    user={id:uid(),name:email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),email:email.toLowerCase(),password:pass,cargo:'',bio:'',created:new Date().toISOString()};
+    users.push(user);saveUsers(users);
+  } else if(user.password && user.password!==pass){
+    showAuthToast(toastId,'Palavra-passe incorreta. Tenta novamente.');return;
+  }
+  // Save session
+  saveSession({userId:user.id,name:user.name,email:user.email,cargo:user.cargo||'',bio:user.bio||'',loginMethod:method,loginTime:new Date().toISOString()});
+  currentUser=user;
+  loadApp();
+}
+
+/* ══════════════════════════════════════
+   REGISTER
+══════════════════════════════════════ */
+function doRegister(){
+  const name=document.getElementById('reg-name').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const pass=document.getElementById('reg-pass').value;
+  const conf=document.getElementById('reg-conf').value;
+  const terms=document.getElementById('reg-terms').checked;
+  if(!name||!email||!pass){showAuthToast('reg-toast','Preenche todos os campos obrigatórios');return;}
+  if(!email.includes('@')){showAuthToast('reg-toast','Email inválido');return;}
+  if(pass.length<6){showAuthToast('reg-toast','A palavra-passe deve ter pelo menos 6 caracteres');return;}
+  if(pass!==conf){showAuthToast('reg-toast','As palavras-passe não coincidem');return;}
+  if(!terms){showAuthToast('reg-toast','Deves aceitar os Termos de Utilização');return;}
+  const users=getUsers();
+  if(users.find(u=>u.email.toLowerCase()===email.toLowerCase())){showAuthToast('reg-toast','Já existe uma conta com este email');return;}
+  const user={id:uid(),name,email:email.toLowerCase(),password:pass,cargo:'',bio:'',created:new Date().toISOString()};
+  users.push(user);saveUsers(users);
+  saveSession({userId:user.id,name:user.name,email:user.email,cargo:'',bio:'',loginMethod:'Email',loginTime:new Date().toISOString()});
+  currentUser=user;
+  loadApp();
+}
+
+/* ══════════════════════════════════════
+   RECOVER PASSWORD
+══════════════════════════════════════ */
+function recStep1(){
+  const email=document.getElementById('rec-email').value.trim();
+  if(!email||!email.includes('@')){showAuthToast('rec-toast','Introduz um email válido');return;}
+  recoverEmail=email;
+  // Simulate sending code — generate fake OTP
+  window._otp=String(Math.floor(100000+Math.random()*900000));
+  console.log('Recovery OTP:',window._otp); // for demo
+  document.getElementById('rec-email-show').textContent=email;
+  // Build OTP inputs
+  const wrap=document.getElementById('otp-wrap');
+  wrap.innerHTML=Array.from({length:6},(_,i)=>`<input class="otp-in" id="otp${i}" maxlength="1" inputmode="numeric" oninput="otpInput(${i})" onkeydown="otpKey(event,${i})"/>`).join('');
+  document.getElementById('rec-step1').style.display='none';
+  document.getElementById('rec-step2').style.display='block';
+  ['rs1','rs2'].forEach((id,i)=>document.getElementById(id).className='step'+(i<=1?' done':''));
+  document.getElementById('rs2').className='step active';
+  document.getElementById('rec-title').textContent='Verifica o teu email';
+  document.getElementById('rec-sub').textContent='Código enviado! (demo: ver consola)';
+  setTimeout(()=>document.getElementById('otp0')?.focus(),100);
+  showAuthToast('rec-toast2',`Código enviado para ${email} ✓`,'ok');
+}
+function otpInput(i){
+  const v=document.getElementById('otp'+i).value;
+  if(v&&i<5)document.getElementById('otp'+(i+1))?.focus();
+}
+function otpKey(e,i){
+  if(e.key==='Backspace'&&!document.getElementById('otp'+i).value&&i>0)document.getElementById('otp'+(i-1))?.focus();
+}
+function recStep1Again(){recoverEmail='';document.getElementById('rec-step2').style.display='none';document.getElementById('rec-step1').style.display='block';document.getElementById('rec-title').textContent='Recuperar palavra-passe';document.getElementById('rec-sub').textContent='Introduz o teu email para receber um código';}
+function recStep2(){
+  const entered=Array.from({length:6},(_,i)=>document.getElementById('otp'+i)?.value||'').join('');
+  if(entered.length<6){showAuthToast('rec-toast2','Introduz o código completo de 6 dígitos');return;}
+  // Accept '000000' as universal demo code or actual code
+  if(entered!==window._otp&&entered!=='000000'){showAuthToast('rec-toast2','Código incorreto. Tenta novamente.');return;}
+  document.getElementById('rec-step2').style.display='none';
+  document.getElementById('rec-step3').style.display='block';
+  document.getElementById('rs3').className='step active';
+  document.getElementById('rec-title').textContent='Nova palavra-passe';
+  document.getElementById('rec-sub').textContent='Escolhe uma nova palavra-passe segura';
+}
+function recStep3(){
+  const np=document.getElementById('rec-newpass').value;
+  const cp=document.getElementById('rec-confpass').value;
+  if(!np||np.length<6){showAuthToast('rec-toast3','A palavra-passe deve ter pelo menos 6 caracteres');return;}
+  if(np!==cp){showAuthToast('rec-toast3','As palavras-passe não coincidem');return;}
+  // Update user password
+  const users=getUsers();
+  const u=users.find(x=>x.email.toLowerCase()===recoverEmail.toLowerCase());
+  if(u){u.password=np;saveUsers(users);}
+  document.getElementById('rec-step3').style.display='none';
+  document.getElementById('rec-success').style.display='block';
+  ['rs1','rs2','rs3'].forEach(id=>document.getElementById(id).className='step done');
+}
+
+/* ══════════════════════════════════════
+   RECOVER EMAIL
+══════════════════════════════════════ */
+let reMode='phone';
+function reTab(m){
+  reMode=m;
+  document.getElementById('re-tab-phone').classList.toggle('active',m==='phone');
+  document.getElementById('re-tab-email').classList.toggle('active',m==='email');
+  document.getElementById('re-phone-f').style.display=m==='phone'?'block':'none';
+  document.getElementById('re-email-f').style.display=m==='email'?'block':'none';
+}
+function findAccounts(){
+  const users=getUsers();
+  // Simulate finding accounts — just show any existing accounts for demo
+  const found=users.length?users:[{name:'Demo Account',email:'demo@escola.pt'}];
+  document.getElementById('re-form').style.display='none';
+  const list=document.getElementById('re-accounts-list');
+  list.innerHTML=found.map(u=>`<div class="acct-item" onclick="selectAccount('${u.email}')"><div class="acct-av">${ini(u.name)}</div><div><div style="font-size:13px;font-weight:600;color:#0f172a">${u.name}</div><div style="font-size:12px;color:#64748b">${u.email}</div></div><i class="ti ti-chevron-right" style="margin-left:auto;color:#94a3b8;font-size:18px"></i></div>`).join('');
+  document.getElementById('re-results').style.display='block';
+}
+function selectAccount(email){
+  document.getElementById('g-email').value=email;
+  document.getElementById('g-pass-wrap').style.display='none';
+  document.getElementById('g-next-btn').innerHTML='<i class="ti ti-arrow-right"></i>Seguinte';
+  googleStep=1;
+  showScreen('s-google');
+}
+
+/* ══════════════════════════════════════
+   LOAD APP / LOGOUT
+══════════════════════════════════════ */
+function loadApp(){
+  const s=getSession();if(!s)return;
+  // Ensure DB for this user
+  const dbKey='es_db_'+s.userId;
+  let db;
+  try{db=JSON.parse(localStorage.getItem(dbKey));}catch{db=null;}
+  if(!db){db=JSON.parse(JSON.stringify(DEMO_DATA));localStorage.setItem(dbKey,JSON.stringify(db));}
+  window.DB=db;window.DB_KEY=dbKey;
+  window.DB.profile={name:s.name,email:s.email,cargo:s.cargo||'',bio:s.bio||''};
+  window.DB.settings=db.settings||{darkMode:false};
+  document.getElementById('auth-wrap').hidden=true;
+  document.getElementById('app-wrap').hidden=false;
+  if(window.DB.settings.darkMode)document.documentElement.classList.add('dark');
+  logA('login','Sessão iniciada');saveDB2();
+  rDash();
+  updSidebar();
+}
+function doLogout(){
+  logA('logout','Sessão terminada');saveDB2();
+  clearSession();
+  currentUser=null;window.DB=null;window.DB_KEY=null;
+  document.documentElement.classList.remove('dark');
+  document.getElementById('app-wrap').hidden=true;
+  document.getElementById('auth-wrap').hidden=false;
+  showScreen('s-login');
+  toast('👋 Sessão terminada');
+}
+function saveDB2(){if(window.DB_KEY&&window.DB)localStorage.setItem(window.DB_KEY,JSON.stringify(window.DB));}
+function logA(action,desc){const s=getSession();if(!window.DB)return;window.DB.activity.unshift({id:uid(),action,desc,user:s?.name||'Utilizador',ts:new Date().toISOString()});if(window.DB.activity.length>300)window.DB.activity.length=300;saveDB2();}
+function updSidebar(){
+  const s=getSession();if(!s)return;
+  document.getElementById('sba').textContent=ini(s.name);
+  document.getElementById('sbn').textContent=s.name;
+  document.getElementById('sbe').textContent=s.email;
+}
+
+/* ══════════════════════════════════════
+   NAV
+══════════════════════════════════════ */
+function nav(p){
+  document.querySelectorAll('.nvi[data-p]').forEach(n=>n.classList.toggle('active',n.dataset.p===p));
+  document.querySelectorAll('.bn-i[data-p]').forEach(n=>n.classList.toggle('active',n.dataset.p===p));
+  document.querySelectorAll('.pg').forEach(x=>x.classList.remove('active'));
+  document.getElementById('pg-'+p)?.classList.add('active');
+  closeSB();
+  ({dashboard:rDash,equipment:renderEq,reservations:rRes,history:renderHist,notifications:rNotif,profile:rProf,settings:rSet})[p]?.();
+}
+document.querySelectorAll('.nvi[data-p]').forEach(n=>n.addEventListener('click',()=>nav(n.dataset.p)));
+function openSB(){document.getElementById('sb').classList.add('open');document.getElementById('sbov').classList.add('on');}
+function closeSB(){document.getElementById('sb').classList.remove('open');document.getElementById('sbov').classList.remove('on');}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+let _t;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(_t);_t=setTimeout(()=>t.classList.remove('on'),2600);}
+
+/* ══════════════════════════════════════
+   HELPERS
+══════════════════════════════════════ */
+function fd(s){if(!s)return'—';const[y,m,d]=s.split('-');return`${d}/${m}/${y}`;}
+function ft(ts){const now=new Date(),d=new Date(ts),di=Math.floor((now-d)/86400000);if(di===0)return d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});if(di===1)return'Ontem';if(di<7)return`${di}d`;return fd(ts.slice(0,10));}
+function ini(n){return(n||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function getAlerts(){
+  if(!window.DB)return[];
+  const t=new Date().toISOString().slice(0,10),a=[];
+  window.DB.reservations.filter(r=>r.status==='ativa'&&r.end&&r.end<t).forEach(r=>a.push({tp:'d',ic:'ti-clock-x',ti:'Atraso',ms:`"${r.eqn}" — ${r.un}`}));
+  window.DB.equipment.filter(e=>e.avail===0).forEach(e=>a.push({tp:'w',ic:'ti-package-off',ti:'Sem stock',ms:`"${e.name}"`}));
+  window.DB.equipment.filter(e=>e.avail>0&&e.avail<=2).forEach(e=>a.push({tp:'i',ic:'ti-info-circle',ti:'Stock baixo',ms:`"${e.name}" — ${e.avail} un.`}));
+  return a;
+}
+function updNB(){const c=getAlerts().length;[document.getElementById('nb1'),document.getElementById('nb2')].forEach(el=>{if(!el)return;el.textContent=c;el.classList.toggle('on',c>0);});}
+
+/* ══════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════ */
+function rDash(){
+  if(!window.DB)return;
+  const h=new Date().getHours(),s=getSession();
+  document.getElementById('greet').textContent=`${h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'}, ${(s?.name||'').split(' ')[0]}! 👋`;
+  document.getElementById('ddate').textContent=new Date().toLocaleDateString('pt-PT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const tot=window.DB.equipment.reduce((a,e)=>a+e.total,0),av=window.DB.equipment.reduce((a,e)=>a+e.avail,0);
+  const act=window.DB.reservations.filter(r=>r.status==='ativa'||r.status==='atrasada').length,al=getAlerts().length;
+  document.getElementById('d-stats').innerHTML=`<div class="sc" onclick="nav('equipment')"><div class="sic ib"><i class="ti ti-device-laptop"></i></div><div class="sc-l">Total</div><div class="sc-v">${tot}</div><div class="sc-s">${window.DB.equipment.length} referências</div></div><div class="sc" onclick="nav('equipment')"><div class="sic ig"><i class="ti ti-package"></i></div><div class="sc-l">Disponíveis</div><div class="sc-v">${av}</div><div class="sc-s">Para reserva</div></div><div class="sc" onclick="nav('reservations')"><div class="sic ia"><i class="ti ti-calendar-check"></i></div><div class="sc-l">Reservas Ativas</div><div class="sc-v">${act}</div><div class="sc-s">em uso</div></div><div class="sc" onclick="nav('notifications')"><div class="sic ir"><i class="ti ti-alert-triangle"></i></div><div class="sc-l">Alertas</div><div class="sc-v">${al}</div><div class="sc-s">a resolver</div></div>`;
+  const als=getAlerts(),am={d:['ald','ti-x'],w:['alw','ti-alert-circle'],i:['ali','ti-info-circle']};
+  document.getElementById('d-alerts').innerHTML=als.length?als.map(a=>`<div class="al ${am[a.tp][0]}"><i class="ti ${am[a.tp][1]}"></i><div class="al-tx"><span class="al-ti">${a.ti}</span>${a.ms}</div></div>`).join(''):`<div style="text-align:center;padding:18px;color:var(--text3)"><i class="ti ti-circle-check" style="font-size:28px;display:block;margin-bottom:6px;color:var(--green)"></i>Sem alertas — tudo em ordem!</div>`;
+  const days=['S','T','Q','Q','S','S','D'],vals=[];
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);vals.push(window.DB.activity.filter(a=>a.ts.slice(0,10)===d.toISOString().slice(0,10)).length);}
+  const mx=Math.max(...vals,1);
+  document.getElementById('d-chart').innerHTML=days.map((d,i)=>`<div class="bw"><div class="bc" style="height:${Math.round((vals[i]/mx)*62)+3}px"></div><div class="bll">${d}</div></div>`).join('');
+  document.getElementById('d-eql').innerHTML=window.DB.equipment.slice(0,5).map(e=>{const c=e.avail===0?'br':e.avail<=2?'ba':'bg3';return`<div style="display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid var(--border)"><div class="eti" style="width:34px;height:34px;border-radius:8px"><i class="ti ${IC[e.type]||'ti-package'}" style="font-size:17px"></i></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.name}</div><div style="font-size:11px;color:var(--text3)">${e.type}</div></div><span class="badge ${c}">${e.avail}/${e.total}</span></div>`;}).join('');
+  document.getElementById('d-act').innerHTML=window.DB.activity.slice(0,6).map(a=>`<div class="hi"><span class="he">${AE[a.action]||'📋'}</span><div style="flex:1"><div style="font-size:13px;color:var(--text)">${a.desc}</div><div style="font-size:11px;color:var(--text3)">${a.user}</div></div><div style="font-size:11px;color:var(--text3)">${ft(a.ts)}</div></div>`).join('');
+  updSidebar();updNB();
+}
+
+/* ══════════════════════════════════════
+   EQUIPAMENTOS
+══════════════════════════════════════ */
+function renderEq(){
+  if(!window.DB)return;
+  const s=(document.getElementById('eqs')?.value||'').toLowerCase(),tf=document.getElementById('eqtf')?.value||'',cf=document.getElementById('eqcf')?.value||'';
+  const data=window.DB.equipment.filter(e=>(!s||(e.name.toLowerCase().includes(s)||e.code.toLowerCase().includes(s)))&&(!tf||e.type===tf)&&(!cf||e.cond===cf));
+  document.getElementById('eq-lbl').textContent=`${window.DB.equipment.length} registados`;
+  if(!data.length){document.getElementById('eq-grid').innerHTML=`<div class="emp" style="grid-column:1/-1"><i class="ti ti-device-laptop"></i><p>Nenhum equipamento encontrado</p></div>`;return;}
+  document.getElementById('eq-grid').innerHTML=data.map(e=>{
+    const pct=e.total>0?Math.round(e.avail/e.total*100):0,ac=e.avail===0?'br':e.avail<=2?'ba':'bg3';
+    return`<div class="ec"><div class="ec-h"><div class="eti"><i class="ti ${IC[e.type]||'ti-package'}"></i></div><div class="ec-i"><div class="ec-n">${e.name}</div><div class="ec-s">${e.type} · ${e.code}</div>${e.loc?`<div style="font-size:11px;color:var(--text3);margin-top:3px">${e.loc}</div>`:''}<span class="badge ${CC[e.cond]||'bgr'}" style="margin-top:5px">${e.cond}</span></div></div>${e.desc?`<p style="font-size:12px;color:var(--text3);margin-bottom:6px;line-height:1.4">${e.desc}</p>`:''}<div class="avr"><span>Disponibilidade</span><span class="badge ${ac}">${e.avail}/${e.total}</span></div><div class="pb"><div class="pf" style="width:${pct}%;opacity:${pct===0?.3:1}"></div></div><div class="ec-a">${e.avail>0?`<button class="btn bp bsm" style="flex:1;justify-content:center" onclick="openResM('${e.id}')"><i class="ti ti-calendar-plus"></i>Reservar</button>`:`<span class="badge bgr" style="flex:1;justify-content:center;padding:6px 8px">Indisponível</span>`}<button class="bi ed" onclick="openEqM('${e.id}')"><i class="ti ti-pencil"></i></button><button class="bi dl" onclick="confDel('${e.id}')"><i class="ti ti-trash"></i></button></div></div>`;
+  }).join('');
+}
+let editEq=null;
+function openEqM(id){
+  editEq=id||null;const e=id?window.DB.equipment.find(x=>x.id===id):null;
+  document.getElementById('eqmt').textContent=e?'Editar Equipamento':'Adicionar Equipamento';
+  document.getElementById('esb').textContent=e?'Guardar':'Adicionar';
+  document.getElementById('efn').value=e?.name||'';document.getElementById('eft').value=e?.type||'Portátil';
+  document.getElementById('efc').value=e?.code||'';document.getElementById('efq').value=e?.total||1;
+  document.getElementById('efcd').value=e?.cond||'Bom';document.getElementById('efl').value=e?.loc||'';
+  document.getElementById('efd').value=e?.desc||'';document.getElementById('eqm').hidden=false;
+}
+function closeEqM(ev){if(!ev||ev.target.classList.contains('ov'))document.getElementById('eqm').hidden=true;}
+function saveEq(){
+  const name=document.getElementById('efn').value.trim(),code=document.getElementById('efc').value.trim(),total=Math.max(1,parseInt(document.getElementById('efq').value)||1);
+  if(!name||!code){toast('⚠️ Nome e código são obrigatórios');return;}
+  const o={type:document.getElementById('eft').value,cond:document.getElementById('efcd').value,loc:document.getElementById('efl').value.trim(),desc:document.getElementById('efd').value.trim()};
+  if(editEq){const e=window.DB.equipment.find(x=>x.id===editEq);if(!e)return;const diff=total-e.total;e.name=name;e.code=code;e.total=total;e.avail=Math.max(0,e.avail+diff);Object.assign(e,o);logA('equipment_edit',`Equipamento "${name}" atualizado`);toast(`✅ "${name}" atualizado`);}
+  else{window.DB.equipment.unshift({id:uid(),name,code,total,avail:total,...o});logA('equipment_add',`Equipamento "${name}" adicionado`);toast(`✅ "${name}" adicionado`);}
+  saveDB2();closeEqM();renderEq();rDash();updNB();
+}
+let cfCB=null;
+function confDel(id){
+  const e=window.DB.equipment.find(x=>x.id===id);if(!e)return;
+  document.getElementById('cft').textContent='Remover equipamento';
+  document.getElementById('cfmsg').innerHTML=`Remover <b>"${e.name}"</b>? Esta ação não pode ser desfeita.`;
+  cfCB=()=>{logA('equipment_delete',`"${e.name}" removido`);window.DB.equipment=window.DB.equipment.filter(x=>x.id!==id);saveDB2();closeCF();renderEq();rDash();toast(`🗑️ "${e.name}" removido`);};
+  document.getElementById('cfm').hidden=false;
+}
+document.getElementById('cfok').onclick=()=>{if(cfCB)cfCB();};
+function closeCF(ev){if(!ev||ev.target.classList.contains('ov')){document.getElementById('cfm').hidden=true;cfCB=null;}}
+
+/* ══════════════════════════════════════
+   RESERVAS
+══════════════════════════════════════ */
+let resEq=null,rtF='all';
+function openResM(eqId){
+  const e=window.DB.equipment.find(x=>x.id===eqId);if(!e)return;resEq=e;
+  document.getElementById('rprev').innerHTML=`<div class="eti" style="width:38px;height:38px;border-radius:9px;flex-shrink:0"><i class="ti ${IC[e.type]||'ti-package'}" style="font-size:19px"></i></div><div><div style="font-size:13px;font-weight:600;color:var(--text)">${e.name}</div><div style="font-size:11px;color:var(--text3)">${e.type} · ${e.avail} disponíveis</div></div>`;
+  ['rfn','rfe','rfno'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('rfq').value=1;document.getElementById('rfq').max=e.avail;
+  document.getElementById('rfs').value=new Date().toISOString().slice(0,10);document.getElementById('rfd').value='';
+  document.getElementById('resm').hidden=false;
+}
+function closeResM(ev){if(!ev||ev.target.classList.contains('ov')){document.getElementById('resm').hidden=true;resEq=null;}}
+function saveRes(){
+  const n=document.getElementById('rfn').value.trim(),em=document.getElementById('rfe').value.trim(),qty=parseInt(document.getElementById('rfq').value)||1,st=document.getElementById('rfs').value;
+  if(!n||!em||!st){toast('⚠️ Nome, email e data são obrigatórios');return;}
+  if(!resEq||qty>resEq.avail){toast('⚠️ Quantidade inválida');return;}
+  window.DB.reservations.unshift({id:uid(),eqid:resEq.id,eqn:resEq.name,eqt:resEq.type,un:n,ue:em,qty,start:st,end:document.getElementById('rfd').value||null,status:'ativa',notes:document.getElementById('rfno').value.trim()});
+  const e=window.DB.equipment.find(x=>x.id===resEq.id);if(e)e.avail=Math.max(0,e.avail-qty);
+  logA('reservation_create',`Reserva de "${resEq.name}" criada para ${n}`);
+  saveDB2();closeResM();rRes();rDash();updNB();toast(`✅ Reserva criada para ${n}`);
+}
+function setRT(el){document.querySelectorAll('#rtabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');rtF=el.dataset.f;rRes();}
+function rRes(){
+  if(!window.DB)return;
+  const today=new Date().toISOString().slice(0,10);
+  window.DB.reservations.forEach(r=>{if(r.status==='ativa'&&r.end&&r.end<today)r.status='atrasada';});
+  const data=rtF==='all'?window.DB.reservations:window.DB.reservations.filter(r=>r.status===rtF||(rtF==='ativa'&&r.status==='atrasada'));
+  const ts=document.querySelectorAll('#rtabs .tab');
+  ts[0].textContent=`Todas (${window.DB.reservations.length})`;
+  ts[1].textContent=`Ativas (${window.DB.reservations.filter(r=>r.status==='ativa'||r.status==='atrasada').length})`;
+  ts[2].textContent=`Devolvidas (${window.DB.reservations.filter(r=>r.status==='devolvida').length})`;
+  ts[3].textContent=`Canceladas (${window.DB.reservations.filter(r=>r.status==='cancelada').length})`;
+  document.getElementById('res-lbl').textContent=`${window.DB.reservations.length} no total`;
+  if(!data.length){document.getElementById('res-list').innerHTML=`<div class="emp"><i class="ti ti-calendar-x"></i><p>Nenhuma reserva encontrada</p></div>`;return;}
+  document.getElementById('res-list').innerHTML=data.map(r=>{
+    const isA=r.status==='ativa'||r.status==='atrasada';
+    return`<div class="ri"><div class="ri-h"><div class="eti" style="width:40px;height:40px;border-radius:10px;flex-shrink:0"><i class="ti ${IC[r.eqt]||'ti-package'}" style="font-size:20px"></i></div><div class="ri-i"><div class="ri-n">${r.eqn}</div><div style="font-size:11px;color:var(--text3)">${r.eqt}${r.qty>1?` · ${r.qty} un.`:''}</div><div class="ri-m"><span><i class="ti ti-user"></i>${r.un}</span><span><i class="ti ti-calendar"></i>${fd(r.start)}${r.end?' → '+fd(r.end):''}</span></div>${r.notes?`<div style="font-size:11px;color:var(--text3);margin-top:5px;font-style:italic">"${r.notes}"</div>`:''}</div><span class="badge ${SC[r.status]||'bgr'}">${SL[r.status]||r.status}</span></div>${isA?`<div class="ri-a"><button class="btn bgr2 bsm" onclick="doRet('${r.id}')"><i class="ti ti-rotate-clockwise-2"></i>Devolver</button><button class="btn bd bsm" onclick="doCan('${r.id}')"><i class="ti ti-x"></i>Cancelar</button></div>`:''}</div>`;
+  }).join('');
+}
+function doRet(id){const r=window.DB.reservations.find(x=>x.id===id);if(!r)return;r.status='devolvida';const e=window.DB.equipment.find(x=>x.id===r.eqid);if(e)e.avail=Math.min(e.total,(e.avail||0)+(r.qty||1));logA('reservation_return',`"${r.eqn}" devolvido por ${r.un}`);saveDB2();rRes();rDash();updNB();toast(`✅ "${r.eqn}" devolvido`);}
+function doCan(id){const r=window.DB.reservations.find(x=>x.id===id);if(!r)return;r.status='cancelada';const e=window.DB.equipment.find(x=>x.id===r.eqid);if(e)e.avail=Math.min(e.total,(e.avail||0)+(r.qty||1));logA('reservation_cancel',`Reserva de "${r.eqn}" cancelada`);saveDB2();rRes();rDash();updNB();toast('❌ Reserva cancelada');}
+
+/* ══════════════════════════════════════
+   HISTÓRICO
+══════════════════════════════════════ */
+function renderHist(){
+  if(!window.DB)return;
+  const s=(document.getElementById('hists')?.value||'').toLowerCase(),af=document.getElementById('histaf')?.value||'';
+  const data=window.DB.activity.filter(a=>(!s||a.desc.toLowerCase().includes(s)||a.user.toLowerCase().includes(s))&&(!af||a.action===af));
+  document.getElementById('hist-lbl').textContent=`${window.DB.activity.length} registos`;
+  if(!data.length){document.getElementById('hist-list').innerHTML=`<div class="emp"><i class="ti ti-history"></i><p>Nenhuma atividade encontrada</p></div>`;return;}
+  const gs={};data.forEach(a=>{const d=fd(a.ts.slice(0,10));if(!gs[d])gs[d]=[];gs[d].push(a);});
+  let h='';for(const[d,items] of Object.entries(gs)){h+=`<div style="padding:9px 18px 4px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;background:var(--bg);border-bottom:1px solid var(--border)">${d}</div>`;h+=items.map(a=>`<div class="hi"><span class="he">${AE[a.action]||'📋'}</span><div style="flex:1"><div style="font-size:13px;color:var(--text)">${a.desc}</div><div style="font-size:11px;color:var(--text3)">${a.user}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="badge bgr" style="font-size:10px">${AL[a.action]||a.action}</span><div style="font-size:11px;color:var(--text3)">${ft(a.ts)}</div></div></div>`).join('');}
+  document.getElementById('hist-list').innerHTML=h;
+}
+
+/* ══════════════════════════════════════
+   NOTIFICAÇÕES
+══════════════════════════════════════ */
+function rNotif(){
+  if(!window.DB)return;
+  const als=getAlerts(),act=window.DB.reservations.filter(r=>r.status==='ativa'||r.status==='atrasada');
+  const all=[...als,...act.slice(0,5).map(r=>({tp:'s',ic:'ti-calendar-check',ti:'Reserva Ativa',ms:`"${r.eqn}" — ${r.un} desde ${fd(r.start)}`}))];
+  document.getElementById('notif-lbl').textContent=`${all.length} alertas`;
+  const am={d:'ald',w:'alw',i:'ali',s:'als'};
+  document.getElementById('notif-list').innerHTML=all.length?all.map(a=>`<div class="al ${am[a.tp]}" style="margin-bottom:10px"><i class="ti ${a.ic}" style="font-size:19px;margin-top:2px"></i><div><span class="al-ti">${a.ti}</span>${a.ms}</div></div>`).join(''):`<div class="emp"><i class="ti ti-bell-off"></i><p>Sem notificações — tudo em ordem!</p></div>`;
+}
+
+/* ══════════════════════════════════════
+   PERFIL
+══════════════════════════════════════ */
+function rProf(){
+  if(!window.DB)return;
+  const{name,email,cargo,bio}=window.DB.profile;
+  document.getElementById('pav').textContent=ini(name);document.getElementById('pnm').textContent=name;
+  document.getElementById('pem').textContent=email;document.getElementById('pcg').textContent=cargo||'Utilizador';
+  document.getElementById('p-n').value=name;document.getElementById('p-e').value=email;
+  document.getElementById('p-c').value=cargo||'';document.getElementById('p-b').value=bio||'';
+}
+function saveProf(){
+  if(!window.DB)return;
+  window.DB.profile.name=document.getElementById('p-n').value.trim()||window.DB.profile.name;
+  window.DB.profile.email=document.getElementById('p-e').value.trim()||window.DB.profile.email;
+  window.DB.profile.cargo=document.getElementById('p-c').value.trim();
+  window.DB.profile.bio=document.getElementById('p-b').value.trim();
+  // Update session
+  const s=getSession();if(s){s.name=window.DB.profile.name;s.email=window.DB.profile.email;s.cargo=window.DB.profile.cargo;s.bio=window.DB.profile.bio;saveSession(s);}
+  // Update user record
+  const users=getUsers();const u=users.find(x=>x.id===s?.userId);if(u){u.name=window.DB.profile.name;u.email=window.DB.profile.email;u.cargo=window.DB.profile.cargo;u.bio=window.DB.profile.bio;saveUsers(users);}
+  logA('profile_update','Perfil atualizado');saveDB2();rProf();rDash();toast('✅ Perfil guardado');
+}
+
+/* ══════════════════════════════════════
+   DEFINIÇÕES
+══════════════════════════════════════ */
+function rSet(){if(!window.DB)return;document.getElementById('dtgl').classList.toggle('on',window.DB.settings.darkMode);}
+function toggleDark(){if(!window.DB)return;window.DB.settings.darkMode=!window.DB.settings.darkMode;document.documentElement.classList.toggle('dark',window.DB.settings.darkMode);document.getElementById('dtgl').classList.toggle('on',window.DB.settings.darkMode);saveDB2();toast(window.DB.settings.darkMode?'🌙 Tema escuro ativo':'☀️ Tema claro ativo');}
+function tglS(el){el.classList.toggle('on');toast(el.classList.contains('on')?'✅ Ativado':'✅ Desativado');}
+function expData(){if(!window.DB)return;const b=new Blob([JSON.stringify(window.DB,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`escolastock_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);toast('📥 Dados exportados');}
+function resetData(){if(!window.DB)return;if(!confirm('Repor dados de demonstração?'))return;window.DB=JSON.parse(JSON.stringify(DEMO_DATA));saveDB2();toast('🔄 Dados repostos');nav('dashboard');}
+
+/* ══════════════════════════════════════
+   PWA
+══════════════════════════════════════ */
+/* manifest loaded externally via manifest.json */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+let dP=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();dP=e;
+  if(!localStorage.getItem('ib-dis'))document.getElementById('ib').classList.add('on');
+  const pc=document.getElementById('pwa-card');if(pc)pc.style.display='block';
+  const fn=()=>{if(!dP)return;dP.prompt();dP.userChoice.then(r=>{if(r.outcome==='accepted'){toast('✅ App instalada!');document.getElementById('ib').classList.remove('on');}});dP=null;};
+  document.getElementById('ib-btn').onclick=fn;
+  const sb=document.getElementById('sib-btn');if(sb)sb.onclick=fn;
+});
+function dismissIB(){localStorage.setItem('ib-dis','1');document.getElementById('ib').classList.remove('on');}
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded',()=>{
+  // Show splash, then check session
+  setTimeout(()=>{
+    document.getElementById('splash').classList.add('hide');
+    setTimeout(()=>document.getElementById('splash').remove(),500);
+    const s=getSession();
+    if(s){
+      // Session exists — go directly to app
+      currentUser={id:s.userId,name:s.name,email:s.email};
+      loadApp();
+    }else{
+      // No session — show login
+      document.getElementById('auth-wrap').hidden=false;
+    }
+  },2000);
+});
+</script>
+</body>
+</html>
