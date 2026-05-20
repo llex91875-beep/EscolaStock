@@ -1,4 +1,5 @@
 {
+  "id": "escolastock-app",
   "name": "EscolaStock",
   "short_name": "EscolaStock",
   "description": "Gestão de Equipamento Informático Escolar",
@@ -28,5 +29,20 @@
       "type": "image/png"
     }
   ],
-  "screenshots": []
+  "screenshots": [
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Painel principal do EscolaStock"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Gestão de equipamentos"
+    }
+  ]
 }
